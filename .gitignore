@@ -1,0 +1,15 @@
+/bin/
+/target/
+/.settings/
+/logs/
+
+# Compiled class file
+*.class
+
+*.classpath
+
+*.factorypath
+
+*.project
+
+*.log
