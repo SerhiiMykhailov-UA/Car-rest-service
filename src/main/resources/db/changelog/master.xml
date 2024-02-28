@@ -4,52 +4,80 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-   <changeSet id="1" author="serg">
 
-      <createTable tableName="category">
-         <column name="id" type="bigint" autoIncrement="${autoIncrement}">
-            <constraints primaryKey="true" nullable="false" />
-         </column>
-         <column name="name" type="varchar(255)">
-            <constraints nullable="false" />
-         </column>
-      </createTable>
-      
-      <createTable tableName="maker">
-         <column name="id" type="bigint" autoIncrement="${autoIncrement}">
-            <constraints primaryKey="true" nullable="false" />
-         </column>
-         <column name="name" type="varchar(255)">
-            <constraints nullable="false" />
-         </column>
-      </createTable>
-      
-      <createTable tableName="car">
-         <column name="id" type="bigint" autoIncrement="${autoIncrement}">
-            <constraints primaryKey="true" nullable="false" />
-         </column>
-         <column name="objectId" type="varchar(255)">
-            <constraints nullable="true" />
-         </column>
-         <column name="name" type="varchar(255)">
-            <constraints nullable="false" />
-         </column>
-         <column name="year" type="timestamp">
-            <constraints nullable="false" />
-         </column>
-         <column name="maker_id" type="bigint">
-            <constraints nullable="false" />
-         </column>
-      </createTable>
-
-      <createIndex indexName="idx_car" tableName="car" unique="false">
-         <column name="id" type="bigint" />
-      </createIndex>
-   </changeSet>
-   
-      <changeSet id="2" author="serg">
-
+    <changeSet author="Serg (generated)" id="1708887133814-1">
+        <createTable tableName="car">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="car_pkey"/>
+            </column>
+            <column name="objectId" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="year" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="maker_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Serg (generated)" id="1708887133814-2">
+        <createTable tableName="category">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="category_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Serg (generated)" id="1708887133814-3">
+        <createTable tableName="maker">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="maker_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
     
-  	  </changeSet>
-
+    <changeSet author="Serg" id="1708887133814-4">
+    	<addForeignKeyConstraint  baseColumnNames="maker_id"
+    		baseTableName="car"
+            constraintName="fk_maker"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="maker"/>
+    </changeSet>
+    
+    <changeSet author="Serg" id="1708887133814-5">
+    	<createTable tableName="car_category">
+    		<column name="car_id" type="BIGINT">
+    			<constraints nullable="false"/>
+    		</column>
+    		<column name="category_id" type="BIGINT">
+    			<constraints nullable="false"/>
+    		</column>
+    	</createTable>
+    </changeSet>
+    
+        <changeSet author="Serg" id="1708887133814-6">
+    	<addForeignKeyConstraint  baseColumnNames="car_id"
+    		baseTableName="car_category"
+            constraintName="fk_car"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="car"/>
+    	<addForeignKeyConstraint  baseColumnNames="category_id"
+    		baseTableName="car_category"
+            constraintName="fk_category"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="id"
+            referencedTableName="category"/>
+    </changeSet>
 </databaseChangeLog>

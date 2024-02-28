@@ -42,7 +42,7 @@ public class Car implements Serializable {
 	private long id;
 	
 	@NonNull
-	@Column(name = "objectId")
+	@Column
 	private String objectId;
 
 	@NonNull
