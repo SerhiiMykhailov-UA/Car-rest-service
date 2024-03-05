@@ -46,7 +46,7 @@ public class Car implements Serializable {
 	private String objectId;
 
 	@NonNull
-	@Column
+	@Column(name = "model")
 	private String name;
 
 	@NonNull
