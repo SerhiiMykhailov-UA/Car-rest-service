@@ -1,6 +1,5 @@
 package ua.foxminded.dto;
 
-import java.util.Date;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -27,7 +26,7 @@ public class CarDto {
 	@NonNull
 	private String name;
 	@NonNull
-	private Date year;
+	private int year;
 
 	@ToString.Exclude
 	@EqualsAndHashCode.Exclude

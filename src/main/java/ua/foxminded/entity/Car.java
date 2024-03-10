@@ -1,9 +1,6 @@
 package ua.foxminded.entity;
 
-import static javax.persistence.TemporalType.DATE;
-
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -14,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.Temporal;
+import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,8 +20,6 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-
-import javax.persistence.ManyToOne;
 
 @Entity
 @Data
@@ -49,10 +44,8 @@ public class Car implements Serializable {
 	@Column(name = "model")
 	private String name;
 
-	@NonNull
 	@Column
-	@Temporal(DATE)
-	private Date year;
+	private int year;
 
 	@ManyToMany
 	@JoinTable(inverseJoinColumns = @JoinColumn(name = "category_id", referencedColumnName = "id"), joinColumns = @JoinColumn(name = "car_id", referencedColumnName = "id"))
