@@ -1,0 +1,1 @@
+insert into category (name) select distinct category_name from temp_car where category_name not like '%,%' and category_name not like '%2%';
