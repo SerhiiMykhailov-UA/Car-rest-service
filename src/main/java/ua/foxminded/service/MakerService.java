@@ -1,6 +1,7 @@
 package ua.foxminded.service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -56,7 +57,7 @@ public class MakerService {
 		return makers;
 	}	
 	
-	public MakerDto get(long id) throws MakerException {
+	public MakerDto get(UUID id) throws MakerException {
 		logger.info("Get maker by id = {}", id);
 		
 		Maker maker = repository.findById(id)
@@ -68,11 +69,25 @@ public class MakerService {
 		return makerDto;
 	}
 	
+	public MakerDto getByName(String name) throws MakerException {
+		logger.info("Get maker by name = {}", name);
+		
+		Maker maker = repository.findByName(name)
+				.orElseThrow(()-> new MakerException("Cann't find the car id = " + name));
+		
+		MakerDto makerDto = mapper.makerToMakerDto(maker, context);
+		logger.info("OUT get maker = {}", makerDto);
+		logger.info("-------------------------------------------");
+		return makerDto;
+	}
+	
 	@Transactional(readOnly = false)
 	public boolean delet(MakerDto maker) {
 		logger.info("Delet maker = {}", maker);
 		
-		boolean delet = repository.deleteByName(maker.getName());
+		repository.deleteById(maker.getId());
+		
+		boolean delet = repository.existsById(maker.getId());
 		
 		logger.info("OUT result delet maker = {}", delet);
 		logger.info("-------------------------------------------");

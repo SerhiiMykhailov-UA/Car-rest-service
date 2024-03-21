@@ -1,6 +1,9 @@
 package ua.foxminded.dto;
 
 import java.util.List;
+import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,12 +21,13 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class CategoryDto {
 
-	private long id;
+	private UUID id;
 
 	@NonNull
 	private String name;
 
 	@ToString.Exclude
 	@EqualsAndHashCode.Exclude
+	@JsonBackReference
 	private List<CarDto> car;
 }

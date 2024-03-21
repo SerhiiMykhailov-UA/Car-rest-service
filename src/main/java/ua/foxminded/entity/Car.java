@@ -1,6 +1,5 @@
 package ua.foxminded.entity;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,9 +29,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @EqualsAndHashCode
-public class Car implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class Car {
 
 	@Id
     @GeneratedValue(generator = "uuid-hibernate-generator")
@@ -40,7 +37,7 @@ public class Car implements Serializable {
 	private UUID id;
 	
 	@NonNull
-	@Column
+	@Column(name = "objectid")
 	private String objectId;
 
 	@NonNull
@@ -50,6 +47,8 @@ public class Car implements Serializable {
 	@Column
 	private int year;
 
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
 	@ManyToMany
 	@JoinTable(inverseJoinColumns = @JoinColumn(name = "category_id", referencedColumnName = "id"), joinColumns = @JoinColumn(name = "car_id", referencedColumnName = "id"))
 	private List<Category> category;

@@ -1,6 +1,7 @@
 package ua.foxminded.service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -53,7 +54,7 @@ public class CategoryService {
 		return categories;
 	}	
 
-	public CategoryDto get(long id) throws CategoryException {
+	public CategoryDto get(UUID id) throws CategoryException {
 		logger.info("Get category by id = {}", id);
 		Category category = repository.findById(id)
 				.orElseThrow(()-> new CategoryException("Cann't find the car id = " + id));
@@ -67,7 +68,9 @@ public class CategoryService {
 	public boolean delet(CategoryDto category) {
 		logger.info("Delet category = {}", category);
 		
-		boolean delet = repository.deleteByName(category.getName());
+		repository.deleteById(category.getId());
+		
+		boolean delet = repository.existsById(category.getId());
 		
 		logger.info("OUT result delet category = {}", delet);
 		logger.info("-------------------------------------------");

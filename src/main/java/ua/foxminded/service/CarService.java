@@ -1,6 +1,7 @@
 package ua.foxminded.service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -57,7 +58,7 @@ public class CarService {
 		return cars;
 	}
 	
-	public CarDto get(long id) throws CarException {
+	public CarDto get(UUID id) throws CarException {
 		logger.info("Get car by id = {}", id);
 		
 		Car car = repository.findById(id)
@@ -73,7 +74,9 @@ public class CarService {
 	public boolean delet(CarDto car) {
 		logger.info("Delet car = {}", car);
 		
-		boolean delet = repository.deleteByObjectId(car.getObjectId());
+		repository.deleteByObjectId(car.getObjectId());
+		
+		boolean delet = repository.existsById(car.getId());
 		
 		logger.info("OUT result delet car = {}", delet);
 		logger.info("-------------------------------------------");
@@ -85,7 +88,7 @@ public class CarService {
 		logger.info("Update car = {}", car);
 		Car carDao = mapper.carDtoToCar(car, context);
 		
-		Car carTemp = repository.findById(car.getId())
+		Car carTemp = repository.findByObjectId(car.getObjectId())
 				.orElseThrow(()-> new CarException("Cann't find car id = " + car.getId()));
 		
 		carTemp.setCategory(carDao.getCategory());

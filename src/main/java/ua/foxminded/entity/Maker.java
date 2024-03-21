@@ -1,14 +1,15 @@
 package ua.foxminded.entity;
 
-import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+
+import org.hibernate.annotations.GenericGenerator;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,19 +26,20 @@ import lombok.ToString;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @EqualsAndHashCode
-public class Maker implements Serializable {
+public class Maker {
 
 	
-	private static final long serialVersionUID = 1L;
-
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+    @GeneratedValue(generator = "uuid-hibernate-generator")
+    @GenericGenerator(name = "uuid-hibernate-generator", strategy = "org.hibernate.id.UUIDGenerator")
+	private UUID id;
 	
 	@NonNull
 	@Column(nullable = false, unique = true)
 	private String name;
 
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
 	@OneToMany(mappedBy = "maker")
 	private List<Car> car;
 

@@ -1,15 +1,15 @@
 package ua.foxminded.entity;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
-import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+
+import org.hibernate.annotations.GenericGenerator;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,18 +26,19 @@ import lombok.ToString;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @EqualsAndHashCode
-public class Category implements Serializable{
-
-	private static final long serialVersionUID = 1L;
+public class Category {
 
 	@Id
-	@GeneratedValue(strategy = IDENTITY)
-	private long id;
+    @GeneratedValue(generator = "uuid-hibernate-generator")
+    @GenericGenerator(name = "uuid-hibernate-generator", strategy = "org.hibernate.id.UUIDGenerator")
+	private UUID id;
 
 	@NonNull
 	@Column
 	private String name;
 
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
 	@ManyToMany(mappedBy = "category")
 	private List<Car> car;
 
