@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,7 +33,6 @@ public class CarDto {
 
 	@ToString.Exclude
 	@EqualsAndHashCode.Exclude
-	@JsonManagedReference
 	private List<CategoryDto> category;
 
 	@JsonBackReference

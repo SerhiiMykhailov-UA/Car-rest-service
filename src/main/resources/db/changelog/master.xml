@@ -130,5 +130,9 @@
 	<changeSet author="Serg" id="1708887133814-10" labels="data">
 		<sqlFile path="/db/car_category_fill-up.sql"/>
 	</changeSet>
+	
+	<changeSet author="Serg" id="1708887133814-11" labels="data">
+		<dropTable tableName="temp_car"/>
+	</changeSet>
 
 </databaseChangeLog>

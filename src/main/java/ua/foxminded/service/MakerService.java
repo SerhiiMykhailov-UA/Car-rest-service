@@ -32,14 +32,18 @@ public class MakerService {
 	}
 	
 	@Transactional(readOnly = false)
-	public MakerDto add (MakerDto maker) {
+	public MakerDto add (MakerDto maker) throws MakerException {
 		logger.info("Add new maker = {}", maker);
 		Maker makerDao = mapper.makerDtoToMaker(maker, context);
-		
-		Maker makerResult = repository.saveAndFlush(makerDao);
-		
+		Maker makerResult = new Maker();
+		if (!repository.existsByName(maker.getName())) {
+			makerResult = repository.saveAndFlush(makerDao);
+		} else {
+			logger.info("OUT Error : Maker : {} already exists", maker);
+			throw new MakerException("Maker : " + maker.getName() + " - already exists");
+		}
 		MakerDto makerDto = mapper.makerToMakerDto(makerResult, context);
-		logger.info("OUT maker = {}", makerDto);
+		logger.info("OUT new Maker = {}", makerDto);
 		logger.info("---------------------------------------");
 		return makerDto;
 	}
@@ -59,12 +63,15 @@ public class MakerService {
 	
 	public MakerDto get(UUID id) throws MakerException {
 		logger.info("Get maker by id = {}", id);
+		if (id  == null) {
+			throw new MakerException("Field : id shouldn't be NULL");
+		}
 		
 		Maker maker = repository.findById(id)
 				.orElseThrow(()-> new MakerException("Cann't find the car id = " + id));
 		
 		MakerDto makerDto = mapper.makerToMakerDto(maker, context);
-		logger.info("OUT get maker = {}", makerDto);
+		logger.info("OUT get Maker = {}", makerDto);
 		logger.info("-------------------------------------------");
 		return makerDto;
 	}
@@ -73,41 +80,82 @@ public class MakerService {
 		logger.info("Get maker by name = {}", name);
 		
 		Maker maker = repository.findByName(name)
-				.orElseThrow(()-> new MakerException("Cann't find the car id = " + name));
+				.orElseThrow(()-> new MakerException("Cann't find maker = " + name));
 		
 		MakerDto makerDto = mapper.makerToMakerDto(maker, context);
-		logger.info("OUT get maker = {}", makerDto);
+		logger.info("OUT get Maker = {}", makerDto);
 		logger.info("-------------------------------------------");
 		return makerDto;
 	}
 	
 	@Transactional(readOnly = false)
-	public boolean delet(MakerDto maker) {
+	public boolean delet(MakerDto maker) throws MakerException {
+		UUID id = maker.getId();
 		logger.info("Delet maker = {}", maker);
+		if (id  == null) {
+			throw new MakerException("Field : id shouldn't be NULL");
+		}
 		
-		repository.deleteById(maker.getId());
+		if (repository.existsById(id)) {
+			repository.deleteById(maker.getId());
+		}else {
+			throw new MakerException("Delet wasn't seccessful. Maker wasn't found");
+		}
 		
-		boolean delet = repository.existsById(maker.getId());
 		
-		logger.info("OUT result delet maker = {}", delet);
+		boolean deletCheck = repository.existsById(maker.getId());
+		
+		if(deletCheck){
+			throw new MakerException("Delet wasn't seccessful");
+		}
+		
+		logger.info("OUT result delet Maker = {}", deletCheck);
 		logger.info("-------------------------------------------");
-		return delet;
+		return deletCheck;
 	}
 	
 	@Transactional(readOnly = false)
-	public MakerDto update (MakerDto maker) throws MakerException {
-		logger.info("Update category = {}", maker);
+	public MakerDto updateName (MakerDto maker) throws MakerException {
+		UUID id = maker.getId();
+		logger.info("Update Maker's name by id = {}", id);
 		Maker makerDao = mapper.makerDtoToMaker(maker, context);
+		if (id  == null) {
+			throw new MakerException("Field : id shouldn't be NULL");
+		}
 		
-		Maker makerTemp = repository.findById(maker.getId())
-				.orElseThrow(()-> new MakerException("Cann't find car id = " + maker.getId()));
+		Maker makerTemp = repository.findById(id)
+				.orElseThrow(()-> new MakerException("Cann't find Maker id = " + id));
+		
+		
+		makerTemp.setName(makerDao.getName());
+		
+		Maker makerResult = repository.saveAndFlush(makerTemp);
+		
+		MakerDto makerDto = mapper.makerToMakerDto(makerResult, context);
+		logger.info("OUT update Maker = {}", makerDto);
+		logger.info("-------------------------------------------");
+		return makerDto;
+	}
+	
+	@Transactional(readOnly = false)
+	public MakerDto updateCars (MakerDto maker) throws MakerException {
+		UUID id = maker.getId();
+		logger.info("Update Maker's cars by id = {}", id);
+		Maker makerDao = mapper.makerDtoToMaker(maker, context);
+		if (id  == null) {
+			throw new MakerException("Field : id shouldn't be NULL");
+		}
+		
+		Maker makerTemp = repository.findById(id)
+				.orElseThrow(()-> new MakerException("Cann't find Maker id = " + id));
+		
 		
 		makerTemp.setCar(makerDao.getCar());
 		
 		Maker makerResult = repository.saveAndFlush(makerTemp);
 		
 		MakerDto makerDto = mapper.makerToMakerDto(makerResult, context);
-		logger.info("OUT update category = {}", makerDto);
+		logger.info("OUT update Maker = {}", makerDto);
 		logger.info("-------------------------------------------");
 		return makerDto;
 	}
