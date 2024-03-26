@@ -106,12 +106,12 @@ public class MakerService {
 		boolean deletCheck = repository.existsById(maker.getId());
 		
 		if(deletCheck){
-			throw new MakerException("Delet wasn't seccessful");
+			throw new MakerException("Delet wasn't seccessful. Contact administrator");
 		}
 		
-		logger.info("OUT result delet Maker = {}", deletCheck);
+		logger.info("OUT result delet Maker = {}", true);
 		logger.info("-------------------------------------------");
-		return deletCheck;
+		return true;
 	}
 	
 	@Transactional(readOnly = false)
