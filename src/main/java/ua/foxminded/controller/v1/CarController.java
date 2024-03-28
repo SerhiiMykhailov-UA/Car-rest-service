@@ -23,7 +23,7 @@ import ua.foxminded.service.CarService;
 
 
 @RestController
-@RequestMapping("/v1/makers/{maker}/models")
+@RequestMapping("/v1/makers")
 public class CarController {
 
 	private final CarService carService;
@@ -32,14 +32,14 @@ public class CarController {
 		this.carService = carService;
 	}
 	
-	@GetMapping
+	@GetMapping("/{maker}/models")
 	public List<String> getAllCarsByMaker(@PathVariable("maker") String makerName,
 			@RequestBody @Valid MakerDto maker) throws MakerException {
 		return carService.getAllModelCarByMaker(maker);
 	}
 	
 
-	@GetMapping("/{model}")
+	@GetMapping("/{maker}/models/{model}")
 	public List<CarDto> getCarsListByModel(@PathVariable("maker") String makerName,
 			@PathVariable("model") String modelName) {
 		String modelNameWithUpCase = modelName.substring(0, 1).toUpperCase() + modelName.substring(1);
@@ -48,7 +48,7 @@ public class CarController {
 		return cars;
 	}
 	
-	@GetMapping("/{model}/{year}")
+	@GetMapping("/{maker}/models/{model}/{year}")
 	public CarDto getCar(@PathVariable("maker") String makerName, 
 			@PathVariable("model") String modelName,
 			@PathVariable("year") int year) throws CarException {
@@ -57,27 +57,23 @@ public class CarController {
 		return carDto;
 	}
 	
-	@PostMapping	
-	public CarDto createNewCar(@PathVariable("maker") String makerName,
-			@RequestBody CarDto car) {
+	@PostMapping("/models")
+	public CarDto createNewCar(@RequestBody CarDto car) {
 		return carService.add(car);
 	}
 	
-	@DeleteMapping
-	public boolean deleteCar (@PathVariable("maker") String makerName,
-			@RequestBody CarDto car) throws CarException {
+	@DeleteMapping("/models")
+	public boolean deleteCar (@RequestBody CarDto car) throws CarException {
 		return carService.delete(car);
 	}
 	
-	@PatchMapping
-	public CarDto updateCarNameMaker (@PathVariable("maker") String makerName,
-			@RequestBody CarDto car) throws CarException {
+	@PatchMapping("/models")
+	public CarDto updateCarNameMaker (@RequestBody CarDto car) throws CarException {
 		return carService.updateNameMaker(car);
 	}
 	
-	@PatchMapping("/categoryupdate")
-	public CarDto updateCarCategory (@PathVariable("maker") String makerName,
-			@RequestBody CarDto car) throws CarException {
+	@PatchMapping("/models")
+	public CarDto updateCarCategory (@RequestBody CarDto car) throws CarException {
 		return carService.updateCategory(car);
 	}
 }
