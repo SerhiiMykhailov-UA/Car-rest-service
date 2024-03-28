@@ -40,9 +40,10 @@ public class MakerControler {
 		return makerService.getAll();
 	}
 	
-	@GetMapping("/maker")
-	public MakerDto getMaker (@RequestBody @Valid MakerDto maker) throws MakerException {
-		return makerService.get(maker.getId());
+	@GetMapping("/{maker}")
+	public MakerDto getMaker (@PathVariable("maker") String makerName) throws MakerException {
+		String makerNameWithUpCase = makerName.substring(0, 1).toUpperCase() + makerName.substring(1);
+		return makerService.getByName(makerNameWithUpCase);
 	}
 	
 	@PostMapping
@@ -54,7 +55,7 @@ public class MakerControler {
 		return makerDtoResult;
 	}
 	
-	@PatchMapping("/maker")
+	@PatchMapping
 	public MakerDto updateMakerName(@RequestBody @Valid MakerDto maker) throws MakerException {
 		logger.info("IN: update Maker = {}", maker);
 		MakerDto makerResult = makerService.updateName(maker);
@@ -62,7 +63,7 @@ public class MakerControler {
  		return makerResult;
 	}
 	
-	@PatchMapping("/maker/updatecarslist")
+	@PatchMapping("/updatecarslist")
 	public MakerDto UpdateCarsListInMaker(@RequestBody @Valid MakerDto maker) throws MakerException {
 		logger.info("IN: update Maker = {}", maker);
 		MakerDto makerResult = makerService.updateCars(maker);

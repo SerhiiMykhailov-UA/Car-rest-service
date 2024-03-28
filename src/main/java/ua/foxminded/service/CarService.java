@@ -10,95 +10,170 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ua.foxminded.dto.CarDto;
+import ua.foxminded.dto.MakerDto;
 import ua.foxminded.entity.Car;
+import ua.foxminded.entity.Maker;
 import ua.foxminded.exception.CarException;
+import ua.foxminded.exception.MakerException;
 import ua.foxminded.mapper.CarMapper;
 import ua.foxminded.mapper.CycleAvoidingMappingContext;
 import ua.foxminded.repository.CarJPARepository;
+import ua.foxminded.repository.MakerJPARepository;
 
 @Service
 @Transactional(readOnly = true)
 public class CarService {
-	
+
 	private final CarMapper mapper;
-	private final CarJPARepository repository;
-	
+	private final CarJPARepository carJPARepository;
+	private final MakerJPARepository makerJPARepository;
+
 	private final Logger logger = LogManager.getLogger();
-	
+
 	private CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
 
-	public CarService(CarMapper mapper, CarJPARepository repository) {
+	public CarService(CarMapper mapper, CarJPARepository carJPARepository, MakerJPARepository makerJPARepository) {
 		this.mapper = mapper;
-		this.repository = repository;
+		this.carJPARepository = carJPARepository;
+		this.makerJPARepository = makerJPARepository;
 	}
 
 	@Transactional(readOnly = false)
-	public CarDto add (CarDto car) {
+	public CarDto add(CarDto car) {
 		logger.info("Add new car = {}", car);
 		Car carDao = mapper.carDtoToCar(car, context);
-		
-		Car carResult = repository.saveAndFlush(carDao);
-		
+
+		Car carResult = carJPARepository.saveAndFlush(carDao);
+
 		CarDto carDto = mapper.carToCarDto(carResult, context);
 		logger.info("OUT car = {}", carDto);
 		logger.info("---------------------------------------");
 		return carDto;
 	}
-	
-	public List<CarDto> getAll(){
+
+	public List<CarDto> getAll() {
 		logger.info("Get all cars");
-		
-		List<CarDto> cars = repository.findAll()
-				.stream()
-				.map(el->mapper.carToCarDto(el, context))
+
+		List<CarDto> cars = carJPARepository.findAll().stream().map(el -> mapper.carToCarDto(el, context))
 				.collect(Collectors.toList());
-		
+
 		logger.info("OUT list of cars = {}", cars);
 		logger.info("-------------------------------------------");
 		return cars;
 	}
-	
+
 	public CarDto get(UUID id) throws CarException {
 		logger.info("Get car by id = {}", id);
-		
-		Car car = repository.findById(id)
-				.orElseThrow(()-> new CarException("Cann't find the car id = " + id));
-		
+
+		Car car = carJPARepository.findById(id).orElseThrow(() -> new CarException("Cann't find the car id = " + id));
+
 		CarDto carDto = mapper.carToCarDto(car, context);
 		logger.info("OUT get car = {}", carDto);
 		logger.info("-------------------------------------------");
 		return carDto;
 	}
 	
-	@Transactional(readOnly = false)
-	public boolean delet(CarDto car) {
-		logger.info("Delet car = {}", car);
-		
-		repository.deleteByObjectId(car.getObjectId());
-		
-		boolean delet = repository.existsById(car.getId());
-		
-		logger.info("OUT result delet car = {}", delet);
+	public CarDto getByNameAndYear(String name, int year) throws CarException {
+		logger.info("Get car by name = {} & year = {}", name, year);
+
+		Car car = carJPARepository.findByNameAndYear(name, year)
+				.orElseThrow(() -> new CarException("Cann't find the car name = " + name + " year = " + year));
+
+		CarDto carDto = mapper.carToCarDto(car, context);
+		logger.info("OUT get car = {}", carDto);
 		logger.info("-------------------------------------------");
-		return delet;
+		return carDto;
 	}
-	
+
 	@Transactional(readOnly = false)
-	public CarDto update (CarDto car) throws CarException {
-		logger.info("Update car = {}", car);
+	public boolean delete(CarDto car) throws CarException {
+		UUID id = car.getId();
+		logger.info("Delet car = {}", car);
+		if (id  == null) {
+			throw new CarException("Field : id shouldn't be NULL");
+		}
+		
+		if (carJPARepository.existsById(id)) {
+			carJPARepository.deleteById(car.getId());
+		}else {
+			throw new CarException("Car id = " + id + " wasn't found");
+		}
+		
+		boolean deleteCheck = carJPARepository.existsById(car.getId());
+
+		if(deleteCheck){
+			throw new CarException("Delet wasn't seccessful. Contact administrator");
+		}
+		logger.info("OUT result delet car = {}", true);
+		logger.info("-------------------------------------------");
+		return true;
+	}
+
+	@Transactional(readOnly = false)
+	public CarDto updateNameMaker(CarDto car) throws CarException {
+		UUID id = car.getId();
+		logger.info("Update car's name & maker = {}", car);
+		if (id  == null) {
+			throw new CarException("Field : id shouldn't be NULL");
+		}
 		Car carDao = mapper.carDtoToCar(car, context);
-		
-		Car carTemp = repository.findByObjectId(car.getObjectId())
-				.orElseThrow(()-> new CarException("Cann't find car id = " + car.getId()));
-		
-		carTemp.setCategory(carDao.getCategory());
+
+		Car carTemp = carJPARepository.findById(car.getId())
+				.orElseThrow(() -> new CarException("Cann't find car id = " + car.getId()));
+
+		carTemp.setName(carDao.getName());
 		carTemp.setMaker(carDao.getMaker());
-		
-		Car carResult = repository.saveAndFlush(carTemp);
-		
+
+		Car carResult = carJPARepository.saveAndFlush(carTemp);
+
 		CarDto carDto = mapper.carToCarDto(carResult, context);
 		logger.info("OUT update car = {}", carDto);
 		logger.info("-------------------------------------------");
 		return carDto;
+	}
+	
+	@Transactional(readOnly = false)
+	public CarDto updateCategory(CarDto car) throws CarException {
+		UUID id = car.getId();
+		logger.info("Update car's category = {}", car);
+		if (id  == null) {
+			throw new CarException("Field : id shouldn't be NULL");
+		}
+		Car carDao = mapper.carDtoToCar(car, context);
+
+		Car carTemp = carJPARepository.findById(car.getId())
+				.orElseThrow(() -> new CarException("Cann't find car id = " + car.getId()));
+
+		carTemp.setCategory(carDao.getCategory());
+
+		Car carResult = carJPARepository.saveAndFlush(carTemp);
+
+		CarDto carDto = mapper.carToCarDto(carResult, context);
+		logger.info("OUT update car = {}", carDto);
+		logger.info("-------------------------------------------");
+		return carDto;
+	}
+
+	public List<CarDto> getCarsByModelList(String modelName) {
+		logger.info("Get cars by model IN modelName = {}", modelName);
+		List<CarDto> cars = carJPARepository.findByNameOrderByYear(modelName)
+				.stream().map(el -> mapper.carToCarDto(el, context))
+				.collect(Collectors.toList());
+		logger.info("Get cars by model OUT list cars = {}", cars);
+		return cars;
+	}
+
+	public List<String> getAllModelCarByMaker(MakerDto maker) throws MakerException {
+		logger.info("Get cars by Maker IN Maker = {}", maker);
+		Maker makerDao = makerJPARepository.findById(maker.getId())
+				.orElseThrow(() -> new MakerException("Cann't find maker = " + maker));
+		List<String> modelCarsList = makerDao.getCar()
+				.stream()
+				.map(el->el.getName())
+				.distinct()
+				.sorted()
+				.collect(Collectors.toList());
+		logger.info("Get car's model by Maker OUT list String name list = {}", modelCarsList);
+		return modelCarsList;
 	}
 }

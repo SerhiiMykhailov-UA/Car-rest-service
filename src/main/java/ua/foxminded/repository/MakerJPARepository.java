@@ -14,5 +14,5 @@ public interface MakerJPARepository extends JpaRepository<Maker, UUID> {
 	Optional<Maker> findByName (String name);
 	
 	boolean deleteByName (String name);
-
+	
 }

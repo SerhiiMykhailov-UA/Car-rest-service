@@ -1,12 +1,14 @@
 package ua.foxminded.repository;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import ua.foxminded.entity.Car;
+import ua.foxminded.entity.Maker;
 
 public interface CarJPARepository extends JpaRepository<Car, UUID> {
 	
@@ -16,8 +18,11 @@ public interface CarJPARepository extends JpaRepository<Car, UUID> {
 	
 	Optional<Car> findByObjectId(String objectId);
 	
-	Optional<Car> findByNameAndYear(String name, Date year);
+	Optional<Car> findByNameAndYear(String name, int year);
 	
 	boolean deleteByObjectId (String objectId);
-
+	
+	List<Car> findByNameOrderByYear(String name);
+	
+	List<Car> findDistinctNameByMakerOrderByName(Maker maker);
 }

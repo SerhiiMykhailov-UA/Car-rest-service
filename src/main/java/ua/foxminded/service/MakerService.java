@@ -1,5 +1,6 @@
 package ua.foxminded.service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -54,6 +55,7 @@ public class MakerService {
 		List<MakerDto> makers = repository.findAll()
 				.stream()
 				.map(el->mapper.makerToMakerDto(el, context))
+				.sorted(Comparator.comparing(MakerDto::getName))
 				.collect(Collectors.toList());
 		
 		logger.info("OUT list of makers = {}", makers);
@@ -99,13 +101,13 @@ public class MakerService {
 		if (repository.existsById(id)) {
 			repository.deleteById(maker.getId());
 		}else {
-			throw new MakerException("Delet wasn't seccessful. Maker wasn't found");
+			throw new MakerException("Maker id = " + id + " wasn't found");
 		}
 		
 		
-		boolean deletCheck = repository.existsById(maker.getId());
+		boolean deleteCheck = repository.existsById(maker.getId());
 		
-		if(deletCheck){
+		if(deleteCheck){
 			throw new MakerException("Delet wasn't seccessful. Contact administrator");
 		}
 		

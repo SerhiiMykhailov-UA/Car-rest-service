@@ -1,6 +1,5 @@
 package ua.foxminded.dto;
 
-import java.util.List;
 import java.util.UUID;
 
 import javax.validation.constraints.NotEmpty;
@@ -29,8 +28,4 @@ public class MakerDto {
 	@NonNull
 	private String name;
 	
-	@ToString.Exclude
-	@EqualsAndHashCode.Exclude
-	private List<CarDto> car;
-
 }
