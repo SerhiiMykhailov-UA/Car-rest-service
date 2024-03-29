@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,10 +51,10 @@ public class MakerService {
 		return makerDto;
 	}
 	
-	public List<MakerDto> getAll(){
+	public List<MakerDto> getAll(int page, int size){
 		logger.info("Get all makers");
 		
-		List<MakerDto> makers = repository.findAll()
+		List<MakerDto> makers = repository.findAll(PageRequest.of(page, size, Sort.by("name").ascending()))
 				.stream()
 				.map(el->mapper.makerToMakerDto(el, context))
 				.sorted(Comparator.comparing(MakerDto::getName))

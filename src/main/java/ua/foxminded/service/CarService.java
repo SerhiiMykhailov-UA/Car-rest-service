@@ -6,11 +6,12 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ua.foxminded.dto.CarDto;
-import ua.foxminded.dto.MakerDto;
 import ua.foxminded.entity.Car;
 import ua.foxminded.entity.Maker;
 import ua.foxminded.exception.CarException;
@@ -51,10 +52,12 @@ public class CarService {
 		return carDto;
 	}
 
-	public List<CarDto> getAll() {
+	public List<CarDto> getAll(int page, int size) {
 		logger.info("Get all cars");
-
-		List<CarDto> cars = carJPARepository.findAll().stream().map(el -> mapper.carToCarDto(el, context))
+		
+		List<CarDto> cars = carJPARepository.findAll(PageRequest.of(page, size, Sort.by("name").ascending()))
+				.stream()
+				.map(el -> mapper.carToCarDto(el, context))
 				.collect(Collectors.toList());
 
 		logger.info("OUT list of cars = {}", cars);
@@ -110,7 +113,7 @@ public class CarService {
 	}
 
 	@Transactional(readOnly = false)
-	public CarDto updateNameMaker(CarDto car) throws CarException {
+	public CarDto updateCar(CarDto car) throws CarException {
 		UUID id = car.getId();
 		logger.info("Update car's name & maker = {}", car);
 		if (id  == null) {
@@ -123,6 +126,7 @@ public class CarService {
 
 		carTemp.setName(carDao.getName());
 		carTemp.setMaker(carDao.getMaker());
+		carTemp.setCategory(carDao.getCategory());
 
 		Car carResult = carJPARepository.saveAndFlush(carTemp);
 
@@ -133,7 +137,7 @@ public class CarService {
 	}
 	
 	@Transactional(readOnly = false)
-	public CarDto updateCategory(CarDto car) throws CarException {
+	public CarDto patchCar(CarDto car) throws CarException {
 		UUID id = car.getId();
 		logger.info("Update car's category = {}", car);
 		if (id  == null) {
@@ -154,19 +158,19 @@ public class CarService {
 		return carDto;
 	}
 
-	public List<CarDto> getCarsByModelList(String modelName) {
+	public List<CarDto> getCarsByModel(String modelName, int page, int size) {
 		logger.info("Get cars by model IN modelName = {}", modelName);
-		List<CarDto> cars = carJPARepository.findByNameOrderByYear(modelName)
+		List<CarDto> cars = carJPARepository.findByNameOrderByYear(modelName, PageRequest.of(page, size, Sort.by("name").ascending()))
 				.stream().map(el -> mapper.carToCarDto(el, context))
 				.collect(Collectors.toList());
 		logger.info("Get cars by model OUT list cars = {}", cars);
 		return cars;
 	}
 
-	public List<String> getAllModelCarByMaker(MakerDto maker) throws MakerException {
-		logger.info("Get cars by Maker IN Maker = {}", maker);
-		Maker makerDao = makerJPARepository.findById(maker.getId())
-				.orElseThrow(() -> new MakerException("Cann't find maker = " + maker));
+	public List<String> getAllModelCarByMaker(String makerName) throws MakerException {
+		logger.info("Get cars by Maker IN Maker = {}", makerName);
+		Maker makerDao = makerJPARepository.findByName(makerName)
+				.orElseThrow(() -> new MakerException("Cann't find maker = " + makerName));
 		List<String> modelCarsList = makerDao.getCar()
 				.stream()
 				.map(el->el.getName())
