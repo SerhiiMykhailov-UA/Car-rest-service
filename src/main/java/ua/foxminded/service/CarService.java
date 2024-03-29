@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -52,13 +53,11 @@ public class CarService {
 		return carDto;
 	}
 
-	public List<CarDto> getAll(int page, int size) {
+	public Page<CarDto> getAll(int page, int size) {
 		logger.info("Get all cars");
 		
-		List<CarDto> cars = carJPARepository.findAll(PageRequest.of(page, size, Sort.by("name").ascending()))
-				.stream()
-				.map(el -> mapper.carToCarDto(el, context))
-				.collect(Collectors.toList());
+		Page<CarDto> cars = carJPARepository.findAll(PageRequest.of(page, size, Sort.by("name").ascending()))
+				.map(el -> mapper.carToCarDto(el, context));
 
 		logger.info("OUT list of cars = {}", cars);
 		logger.info("-------------------------------------------");
@@ -124,6 +123,7 @@ public class CarService {
 		Car carTemp = carJPARepository.findById(car.getId())
 				.orElseThrow(() -> new CarException("Cann't find car id = " + car.getId()));
 
+		carTemp.setObjectId(carDao.getObjectId());
 		carTemp.setName(carDao.getName());
 		carTemp.setMaker(carDao.getMaker());
 		carTemp.setCategory(carDao.getCategory());
@@ -158,11 +158,10 @@ public class CarService {
 		return carDto;
 	}
 
-	public List<CarDto> getCarsByModel(String modelName, int page, int size) {
+	public Page<CarDto> getCarsByModel(String modelName, int page, int size) {
 		logger.info("Get cars by model IN modelName = {}", modelName);
-		List<CarDto> cars = carJPARepository.findByNameOrderByYear(modelName, PageRequest.of(page, size, Sort.by("name").ascending()))
-				.stream().map(el -> mapper.carToCarDto(el, context))
-				.collect(Collectors.toList());
+		Page<CarDto> cars = carJPARepository.findByNameOrderByYear(modelName, PageRequest.of(page, size, Sort.by("year").ascending()))
+				.map(el -> mapper.carToCarDto(el, context));
 		logger.info("Get cars by model OUT list cars = {}", cars);
 		return cars;
 	}

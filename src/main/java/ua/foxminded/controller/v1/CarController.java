@@ -2,6 +2,7 @@ package ua.foxminded.controller.v1;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -37,11 +38,11 @@ public class CarController {
 	}
 	
 	@GetMapping("/models/{model}")
-	public List<CarDto> getCarsListByModel(@PathVariable("model") String modelName,
+	public Page<CarDto> getCarsListByModel(@PathVariable("model") String modelName,
 			@RequestParam(name = "page", defaultValue = "1") int page,
 			@RequestParam(name = "size", defaultValue = "10") int size) {
 		String modelNameWithUpCase = modelName.substring(0, 1).toUpperCase() + modelName.substring(1);
-		List<CarDto> cars = carService.getCarsByModel(modelNameWithUpCase, page, size);
+		Page<CarDto> cars = carService.getCarsByModel(modelNameWithUpCase, page, size);
 		System.out.println(cars);
 		return cars;
 	}

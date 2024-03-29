@@ -1,7 +1,6 @@
 package ua.foxminded.repository;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,7 +22,7 @@ public interface CarJPARepository extends JpaRepository<Car, UUID> {
 	
 	boolean deleteByObjectId (String objectId);
 	
-	List<Car> findByNameOrderByYear(String name, Pageable pageable);
+	Page<Car> findByNameOrderByYear(String name, Pageable pageable);
 	
 	Page<Car> findAll (Pageable pageable);
 }

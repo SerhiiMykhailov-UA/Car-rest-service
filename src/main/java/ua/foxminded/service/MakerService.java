@@ -1,12 +1,10 @@
 package ua.foxminded.service;
 
-import java.util.Comparator;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -51,15 +49,12 @@ public class MakerService {
 		return makerDto;
 	}
 	
-	public List<MakerDto> getAll(int page, int size){
+	public Page<MakerDto> getAll(int page, int size){
 		logger.info("Get all makers");
 		
-		List<MakerDto> makers = repository.findAll(PageRequest.of(page, size, Sort.by("name").ascending()))
-				.stream()
-				.map(el->mapper.makerToMakerDto(el, context))
-				.sorted(Comparator.comparing(MakerDto::getName))
-				.collect(Collectors.toList());
-		
+		Page<MakerDto> makers = repository.findAll(PageRequest.of(page, size, Sort.by("name").ascending()))
+				.map(el->mapper.makerToMakerDto(el, context));
+
 		logger.info("OUT list of makers = {}", makers);
 		logger.info("-------------------------------------------");
 		return makers;

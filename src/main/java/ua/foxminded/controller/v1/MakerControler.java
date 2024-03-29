@@ -1,11 +1,10 @@
 package ua.foxminded.controller.v1;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,7 +36,7 @@ public class MakerControler {
 	
 	
 	@GetMapping()
-	public List<MakerDto> getListAllMakers(@RequestParam(name = "page", defaultValue = "1") int page,
+	public Page<MakerDto> getListAllMakers(@RequestParam(name = "page", defaultValue = "1") int page,
 			@RequestParam(name = "size", defaultValue = "10") int size) {
 		return makerService.getAll(page, size);
 	}
@@ -50,11 +49,7 @@ public class MakerControler {
 	
 	@PostMapping
 	public MakerDto addMakerDto (@RequestBody @Valid MakerDto maker) throws MakerException {
-		logger.info("IN: Add new Maker = {}", maker);
-		
-		MakerDto makerDtoResult = makerService.add(maker);
-		logger.info("OUT: Add new Maker = {}", makerDtoResult);
-		return makerDtoResult;
+		return makerService.add(maker);
 	}
 	
 	@PatchMapping
