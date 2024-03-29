@@ -65,13 +65,6 @@ public class MakerControler {
  		return makerResult;
 	}
 	
-	@PatchMapping("/updatecarslist")
-	public MakerDto UpdateCarsListInMaker(@RequestBody @Valid MakerDto maker) throws MakerException {
-		logger.info("IN: update Maker = {}", maker);
-		MakerDto makerResult = makerService.updateCars(maker);
-		logger.info("OUT: update Maker = {}", makerResult);
- 		return makerResult;
-	}
 	
 	@DeleteMapping
 	public ResponseEntity<HttpStatus> deletMaker (@RequestBody @Valid MakerDto maker) throws MakerException {

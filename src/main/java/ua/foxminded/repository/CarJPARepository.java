@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import ua.foxminded.entity.Car;
-import ua.foxminded.entity.Maker;
 
 public interface CarJPARepository extends JpaRepository<Car, UUID> {
 	
