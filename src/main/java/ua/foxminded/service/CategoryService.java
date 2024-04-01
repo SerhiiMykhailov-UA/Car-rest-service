@@ -54,10 +54,20 @@ public class CategoryService {
 		return categories;
 	}	
 
-	public CategoryDto get(UUID id) throws CategoryException {
+	public CategoryDto getById(UUID id) throws CategoryException {
 		logger.info("Get category by id = {}", id);
 		Category category = repository.findById(id)
-				.orElseThrow(()-> new CategoryException("Cann't find the car id = " + id));
+				.orElseThrow(()-> new CategoryException("Cann't find the category id = " + id));
+		CategoryDto categoryDto = mapper.categoryToCategoryDto(category, context);
+		logger.info("OUT get category = {}", categoryDto);
+		logger.info("-------------------------------------------");
+		return categoryDto;
+	}
+	
+	public CategoryDto getByName(String name) throws CategoryException {
+		logger.info("Get category by id = {}", name);
+		Category category = repository.findByName(name)
+				.orElseThrow(()-> new CategoryException("Cann't find the category by name = " + name));
 		CategoryDto categoryDto = mapper.categoryToCategoryDto(category, context);
 		logger.info("OUT get category = {}", categoryDto);
 		logger.info("-------------------------------------------");

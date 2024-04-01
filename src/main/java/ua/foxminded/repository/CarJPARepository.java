@@ -7,10 +7,11 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import ua.foxminded.entity.Car;
 
-public interface CarJPARepository extends JpaRepository<Car, UUID> {
+public interface CarJPARepository extends JpaRepository<Car, UUID>, JpaSpecificationExecutor<Car>{
 	
 	boolean existsByObjectId(String objectId);
 	
@@ -25,4 +26,5 @@ public interface CarJPARepository extends JpaRepository<Car, UUID> {
 	Page<Car> findByNameOrderByYear(String name, Pageable pageable);
 	
 	Page<Car> findAll (Pageable pageable);
+	
 }

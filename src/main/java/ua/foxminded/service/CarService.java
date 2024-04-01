@@ -9,11 +9,14 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ua.foxminded.dto.CarDto;
+import ua.foxminded.dto.CategoryDto;
 import ua.foxminded.entity.Car;
+import ua.foxminded.entity.Category;
 import ua.foxminded.entity.Maker;
 import ua.foxminded.exception.CarException;
 import ua.foxminded.exception.MakerException;
@@ -21,6 +24,7 @@ import ua.foxminded.mapper.CarMapper;
 import ua.foxminded.mapper.CycleAvoidingMappingContext;
 import ua.foxminded.repository.CarJPARepository;
 import ua.foxminded.repository.MakerJPARepository;
+import ua.foxminded.specificationJPA.SearchSpecification;
 
 @Service
 @Transactional(readOnly = true)
@@ -163,6 +167,7 @@ public class CarService {
 		Page<CarDto> cars = carJPARepository.findByNameOrderByYear(modelName, PageRequest.of(page, size, Sort.by("year").ascending()))
 				.map(el -> mapper.carToCarDto(el, context));
 		logger.info("Get cars by model OUT list cars = {}", cars);
+		logger.info("-------------------------------------------");
 		return cars;
 	}
 
@@ -177,6 +182,8 @@ public class CarService {
 				.sorted()
 				.collect(Collectors.toList());
 		logger.info("Get car's model by Maker OUT list String name list = {}", modelCarsList);
+		logger.info("-------------------------------------------");
 		return modelCarsList;
 	}
+	
 }
