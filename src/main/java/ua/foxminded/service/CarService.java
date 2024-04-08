@@ -1,13 +1,22 @@
 package ua.foxminded.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatcher;
+import org.springframework.data.domain.ExampleMatcher.MatcherConfigurer;
+import org.springframework.data.domain.ExampleMatcher.StringMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -19,10 +28,12 @@ import ua.foxminded.entity.Car;
 import ua.foxminded.entity.Category;
 import ua.foxminded.entity.Maker;
 import ua.foxminded.exception.CarException;
+import ua.foxminded.exception.CategoryException;
 import ua.foxminded.exception.MakerException;
 import ua.foxminded.mapper.CarMapper;
 import ua.foxminded.mapper.CycleAvoidingMappingContext;
 import ua.foxminded.repository.CarJPARepository;
+import ua.foxminded.repository.CategoryJPARepository;
 import ua.foxminded.repository.MakerJPARepository;
 import ua.foxminded.specificationJPA.SearchSpecification;
 
@@ -33,15 +44,17 @@ public class CarService {
 	private final CarMapper mapper;
 	private final CarJPARepository carJPARepository;
 	private final MakerJPARepository makerJPARepository;
+	private final CategoryJPARepository categoryJPARepository;
 
 	private final Logger logger = LogManager.getLogger();
 
 	private CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
 
-	public CarService(CarMapper mapper, CarJPARepository carJPARepository, MakerJPARepository makerJPARepository) {
+	public CarService(CarMapper mapper, CarJPARepository carJPARepository, MakerJPARepository makerJPARepository, CategoryJPARepository categoryJPARepository) {
 		this.mapper = mapper;
 		this.carJPARepository = carJPARepository;
 		this.makerJPARepository = makerJPARepository;
+		this.categoryJPARepository = categoryJPARepository;
 	}
 
 	@Transactional(readOnly = false)
@@ -184,6 +197,37 @@ public class CarService {
 		logger.info("Get car's model by Maker OUT list String name list = {}", modelCarsList);
 		logger.info("-------------------------------------------");
 		return modelCarsList;
+	}
+	
+	public Page<CarDto> searchCars(String name, int yearMax, int yearMin,
+			int page, int size, String makerName, String categoryName) throws CategoryException, MakerException {
+		Car car = new Car();
+		if (name != null) {
+			car.setName(name);
+		}
+		if (categoryName != null) {
+			Category category = categoryJPARepository.findByName(categoryName)
+					.orElseThrow(()-> new CategoryException(""));
+			car.setCategory(new ArrayList<>(Arrays.asList(category)));
+		}
+		if (makerName != null) {
+			Maker maker = makerJPARepository.findByName(makerName)
+					.orElseThrow(()-> new MakerException(""));
+			car.setMaker(maker);
+		}
+		car.setYear(2019);
+		System.out.println(car);
+		ExampleMatcher exampleMatcher = ExampleMatcher.matching()
+				.withIgnoreNullValues()
+				.withMatcher("name", new GenericPropertyMatcher().contains().ignoreCase())
+				.withMatcher("category", new GenericPropertyMatcher().contains().ignoreCase())
+				.withMatcher("maker", new GenericPropertyMatcher().exact().ignoreCase())
+				.withMatcher("year", new GenericPropertyMatcher().exact());
+		Example<Car> example = Example.of(car, exampleMatcher);
+		Page<Car> cars = carJPARepository.findAll(example, PageRequest.of(page, size));
+		logger.info("Cars = {}", cars.toList());
+		Page<CarDto> carsDto =	cars.map(el->mapper.carToCarDto(el, context));
+		return carsDto;
 	}
 	
 }

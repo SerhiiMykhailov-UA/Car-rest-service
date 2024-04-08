@@ -1,6 +1,10 @@
 package ua.foxminded.specificationJPA;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
@@ -8,7 +12,7 @@ import ua.foxminded.entity.Car;
 import ua.foxminded.entity.Category;
 import ua.foxminded.entity.Maker;
 
-public class SearchSpecification {
+public class SearchSpecification implements Specification<Car> {
 	
     public static Specification<Car> carByCategory(Category category) {
         return (root, query, criteriaBuilder) -> {
@@ -43,5 +47,11 @@ public class SearchSpecification {
     public static Specification<Car> carByYearMIN(int yearMax, int yearMin) {
 		return (root, query, criteriaBuilder) ->
 			criteriaBuilder.between(root.get("year"), yearMax, yearMin);
+	}
+
+	@Override
+	public Predicate toPredicate(Root<Car> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -2,6 +2,8 @@ package ua.foxminded.controller.v1;
 
 import java.util.List;
 
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ua.foxminded.dto.CarDto;
+import ua.foxminded.entity.Car;
 import ua.foxminded.exception.CarException;
+import ua.foxminded.exception.CategoryException;
 import ua.foxminded.exception.MakerException;
 import ua.foxminded.service.CarService;
 
@@ -27,7 +31,7 @@ import ua.foxminded.service.CarService;
 public class CarController {
 
 	private final CarService carService;
-
+	
 	public CarController(CarService carService) {
 		this.carService = carService;
 	}
@@ -73,5 +77,17 @@ public class CarController {
 	@PatchMapping("/models")
 	public CarDto patchCar (@RequestBody CarDto car) throws CarException {
 		return carService.patchCar(car);
+	}
+	
+	@GetMapping("/cars")
+	public Page<CarDto> serchCars (@RequestParam(name = "name", required = false) String name,
+			@RequestParam(name = "yearMax", required = false, defaultValue = "0") int yearMax,
+			@RequestParam(name = "yearMin", required = false, defaultValue = "0") int yearMin,
+			@RequestParam(name = "maker", required = false) String maker,
+			@RequestParam(name = "category", required = false) String category,
+			@RequestParam(name = "page", defaultValue = "1", required = true) int page,
+			@RequestParam(name = "size", defaultValue = "10", required = true) int size) throws CategoryException, MakerException{
+		
+		return carService.searchCars(name, yearMax, yearMin, page, size, maker, category);
 	}
 }

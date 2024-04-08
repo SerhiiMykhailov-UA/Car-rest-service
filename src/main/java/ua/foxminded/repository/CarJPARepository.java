@@ -8,10 +8,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.repository.query.QueryByExampleExecutor;
 
 import ua.foxminded.entity.Car;
 
-public interface CarJPARepository extends JpaRepository<Car, UUID>, JpaSpecificationExecutor<Car>{
+public interface CarJPARepository extends JpaRepository<Car, UUID>, JpaSpecificationExecutor<Car>, QueryByExampleExecutor<Car>{
 	
 	boolean existsByObjectId(String objectId);
 	
