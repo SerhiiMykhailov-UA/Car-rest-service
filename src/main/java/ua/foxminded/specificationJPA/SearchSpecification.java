@@ -14,7 +14,9 @@ import ua.foxminded.entity.Maker;
 
 public class SearchSpecification implements Specification<Car> {
 	
-    public static Specification<Car> carByCategory(Category category) {
+	private static final long serialVersionUID = 1L;
+
+	public static Specification<Car> carByCategory(Category category) {
         return (root, query, criteriaBuilder) -> {
           Join<Car, Category> carsCategory = root.join("category");
           return criteriaBuilder.equal(carsCategory.get("name"), category.getName());

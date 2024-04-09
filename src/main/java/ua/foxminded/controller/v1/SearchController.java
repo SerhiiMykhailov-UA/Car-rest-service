@@ -14,17 +14,20 @@ import ua.foxminded.dto.CategoryDto;
 import ua.foxminded.dto.MakerDto;
 import ua.foxminded.exception.CategoryException;
 import ua.foxminded.service.SearchService;
+import ua.foxminded.specificationJPA.SearchCriteria;
 
 @RestController
 @RequestMapping("/v1/search")
 public class SearchController {
 
 	private final SearchService service;
+	private SearchCriteria searchCriteria;
 	
 	private final Logger logger = LogManager.getLogger();
 
-	public SearchController(SearchService service) {
+	public SearchController(SearchService service, SearchCriteria searchCriteria) {
 		this.service = service;
+		this.searchCriteria = searchCriteria;
 	}
 	
 	@GetMapping

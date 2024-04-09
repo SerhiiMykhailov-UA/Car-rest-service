@@ -2,7 +2,10 @@ package ua.foxminded.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -35,6 +38,8 @@ import ua.foxminded.mapper.CycleAvoidingMappingContext;
 import ua.foxminded.repository.CarJPARepository;
 import ua.foxminded.repository.CategoryJPARepository;
 import ua.foxminded.repository.MakerJPARepository;
+import ua.foxminded.specificationJPA.SearchCriteria;
+import ua.foxminded.specificationJPA.SearchInterface;
 import ua.foxminded.specificationJPA.SearchSpecification;
 
 @Service
@@ -45,16 +50,18 @@ public class CarService {
 	private final CarJPARepository carJPARepository;
 	private final MakerJPARepository makerJPARepository;
 	private final CategoryJPARepository categoryJPARepository;
+	private final SearchInterface searchInterface;
 
 	private final Logger logger = LogManager.getLogger();
 
 	private CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
 
-	public CarService(CarMapper mapper, CarJPARepository carJPARepository, MakerJPARepository makerJPARepository, CategoryJPARepository categoryJPARepository) {
+	public CarService(CarMapper mapper, CarJPARepository carJPARepository, MakerJPARepository makerJPARepository, CategoryJPARepository categoryJPARepository, SearchInterface searchInterface) {
 		this.mapper = mapper;
 		this.carJPARepository = carJPARepository;
 		this.makerJPARepository = makerJPARepository;
 		this.categoryJPARepository = categoryJPARepository;
+		this.searchInterface = searchInterface;
 	}
 
 	@Transactional(readOnly = false)
@@ -199,35 +206,17 @@ public class CarService {
 		return modelCarsList;
 	}
 	
-	public Page<CarDto> searchCars(String name, int yearMax, int yearMin,
-			int page, int size, String makerName, String categoryName) throws CategoryException, MakerException {
-		Car car = new Car();
-		if (name != null) {
-			car.setName(name);
+	public Page<CarDto> searchCars(List<String> keyList,
+			int page, int size) throws CategoryException, MakerException {
+		Specification<Car> rootSpecification = null;
+		for (String string : keyList) {
+			rootSpecification = Optional.ofNullable(rootSpecification)
+					.map(specification->specification.and(searchInterface.getSpecification(string)))
+					.orElseGet(()->Specification.where(searchInterface.getSpecification(string)));
 		}
-		if (categoryName != null) {
-			Category category = categoryJPARepository.findByName(categoryName)
-					.orElseThrow(()-> new CategoryException(""));
-			car.setCategory(new ArrayList<>(Arrays.asList(category)));
-		}
-		if (makerName != null) {
-			Maker maker = makerJPARepository.findByName(makerName)
-					.orElseThrow(()-> new MakerException(""));
-			car.setMaker(maker);
-		}
-		car.setYear(2019);
-		System.out.println(car);
-		ExampleMatcher exampleMatcher = ExampleMatcher.matching()
-				.withIgnoreNullValues()
-				.withMatcher("name", new GenericPropertyMatcher().contains().ignoreCase())
-				.withMatcher("category", new GenericPropertyMatcher().contains().ignoreCase())
-				.withMatcher("maker", new GenericPropertyMatcher().exact().ignoreCase())
-				.withMatcher("year", new GenericPropertyMatcher().exact());
-		Example<Car> example = Example.of(car, exampleMatcher);
-		Page<Car> cars = carJPARepository.findAll(example, PageRequest.of(page, size));
-		logger.info("Cars = {}", cars.toList());
-		Page<CarDto> carsDto =	cars.map(el->mapper.carToCarDto(el, context));
-		return carsDto;
+		Page<CarDto> cars = carJPARepository.findAll(rootSpecification, PageRequest.of(page, size))
+				.map(el-> mapper.carToCarDto(el, context));
+		return cars;
 	}
 	
 }
