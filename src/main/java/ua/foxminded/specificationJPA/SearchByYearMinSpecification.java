@@ -8,17 +8,10 @@ import ua.foxminded.entity.Car;
 @Component
 public class SearchByYearMinSpecification implements Command<Car> {
 	
-	private SearchCriteria searchCriteria;
-	
-
-	public SearchByYearMinSpecification(SearchCriteria searchCriteria) {
-		this.searchCriteria = searchCriteria;
-	}
-
 	@Override
-	public Specification<Car> execute() {
+	public Specification<Car> execute(SearchCriteria searchCriteria) {
 		return (root, query, criteriaBuilder) ->
-		criteriaBuilder.greaterThan(root.get("year"), searchCriteria.getYearMin());
+		criteriaBuilder.greaterThanOrEqualTo(root.get("year"), searchCriteria.getYearMin());
 	}
 
 	@Override

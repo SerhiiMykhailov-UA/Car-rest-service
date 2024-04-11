@@ -11,15 +11,8 @@ import ua.foxminded.entity.Maker;
 @Component
 public class SearchByMakerSpecification implements Command<Car>{
 	
-	private SearchCriteria searchCriteria;
-	
-
-	public SearchByMakerSpecification(SearchCriteria searchCriteria) {
-		this.searchCriteria = searchCriteria;
-	}
-
 	@Override
-	public Specification<Car> execute() {
+	public Specification<Car> execute(SearchCriteria searchCriteria) {
 		return (root, query, criteriaBuilder) -> {
 			Join<Car, Maker> carsMaker = root.join("maker");
 			return criteriaBuilder.equal(carsMaker.get("name"), searchCriteria.getMaker());

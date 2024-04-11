@@ -11,15 +11,8 @@ import ua.foxminded.entity.Maker;
 @Component
 public class SerchByCategorySpecification implements Command<Car>{
 	
-	private SearchCriteria searchCriteria;
-	
-
-	public SerchByCategorySpecification(SearchCriteria searchCriteria) {
-		this.searchCriteria = searchCriteria;
-	}
-
 	@Override
-	public Specification<Car> execute() {
+	public Specification<Car> execute(SearchCriteria searchCriteria) {
 		return (root, query, criteriaBuilder)->{
 			Join<Car, Maker> carJoin = root.join("category");
 			return criteriaBuilder.equal(carJoin.get("name"), searchCriteria.getCategory());

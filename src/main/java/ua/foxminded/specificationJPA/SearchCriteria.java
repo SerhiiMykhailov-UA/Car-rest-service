@@ -1,8 +1,5 @@
 package ua.foxminded.specificationJPA;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class SearchCriteria {
 
 	private String name;
@@ -12,14 +9,14 @@ public class SearchCriteria {
 	private int yearMin;
 
 	
-//	public SearchCriteria(String name, String maker, String category, int yearMax, int yearMin) {
-//		this.name = name;
-//		this.maker = maker;
-//		this.category = category;
-//		this.yearMax = yearMax;
-//		this.yearMin = yearMin;
+	public SearchCriteria(String name, String maker, String category, int yearMax, int yearMin) {
+		this.name = name;
+		this.maker = maker;
+		this.category = category;
+		this.yearMax = yearMax;
+		this.yearMin = yearMin;
 
-//	}
+	}
 
 	public String getName() {
 		return name;

@@ -8,17 +8,10 @@ import ua.foxminded.entity.Car;
 @Component
 public class SearchByYearBetweenSpecification implements Command<Car> {
 	
-	private SearchCriteria searchCriteria;
-	
-
-	public SearchByYearBetweenSpecification(SearchCriteria searchCriteria) {
-		this.searchCriteria = searchCriteria;
-	}
-
 	@Override
-	public Specification<Car> execute() {
+	public Specification<Car> execute(SearchCriteria searchCriteria) {
 		return (root, query, criteriaBuilder) ->
-		criteriaBuilder.between(root.get("year"), searchCriteria.getYearMax(), searchCriteria.getYearMin());
+		criteriaBuilder.between(root.get("year"), searchCriteria.getYearMin(), searchCriteria.getYearMax());
 	}
 
 	@Override

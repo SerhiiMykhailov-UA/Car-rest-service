@@ -21,7 +21,7 @@ public class SearchInterface {
 		}
 	}
 	
-	public Specification<Car> getSpecification(String s) {
-		return searchList.get(s).execute();
+	public Specification<Car> getSpecification(String s, SearchCriteria searchCriteria) {
+		return searchList.get(s).execute(searchCriteria);
 	}
 }

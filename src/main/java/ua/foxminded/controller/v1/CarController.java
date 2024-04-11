@@ -3,6 +3,8 @@ package ua.foxminded.controller.v1;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,15 +32,16 @@ import ua.foxminded.specificationJPA.SearchCriteria;
 public class CarController {
 
 	private final CarService carService;
-	private SearchCriteria searchCriteria;
 	
-	public CarController(CarService carService, SearchCriteria searchCriteria) {
+	private final Logger logger = LogManager.getLogger();
+	
+	public CarController(CarService carService) {
 		this.carService = carService;
-		this.searchCriteria = searchCriteria;
 	}
 	
 	@GetMapping("/{maker}/models")
 	public List<String> getAllCarsByMaker(@PathVariable("maker") String makerName) throws MakerException {
+		logger.info("IN: Get all cars by maker name = {}", makerName);
 		return carService.getAllModelCarByMaker(makerName);
 	}
 	
@@ -46,6 +49,7 @@ public class CarController {
 	public Page<CarDto> getCarsListByModel(@PathVariable("model") String modelName,
 			@RequestParam(name = "page", defaultValue = "1") int page,
 			@RequestParam(name = "size", defaultValue = "10") int size) {
+		logger.info("IN: Get cars by Model name = {}", modelName);
 		String modelNameWithUpCase = modelName.substring(0, 1).toUpperCase() + modelName.substring(1);
 		Page<CarDto> cars = carService.getCarsByModel(modelNameWithUpCase, page, size);
 		System.out.println(cars);
@@ -55,6 +59,7 @@ public class CarController {
 	@GetMapping("/models/{model}/{year}")
 	public CarDto getCar(@PathVariable("model") String modelName,
 			@PathVariable("year") int year) throws CarException {
+		logger.info("IN: Get car by model name = {} & year = {}", modelName, year);
 		String modelNameWithUpCase = modelName.substring(0, 1).toUpperCase() + modelName.substring(1);
 		CarDto carDto = carService.getByNameAndYear(modelNameWithUpCase, year);
 		return carDto;
@@ -62,46 +67,51 @@ public class CarController {
 	
 	@PostMapping("/models")
 	public CarDto createNewCar(@RequestBody CarDto car) {
+		logger.info("IN: Post new car = {}", car);
 		return carService.add(car);
 	}
 	
 	@DeleteMapping("/models")
 	public boolean deleteCar (@RequestBody CarDto car) throws CarException {
+		logger.info("IN: delet car = {}", car);
 		return carService.delete(car);
 	}
 	
 	@PutMapping("/models")
 	public CarDto updateCar (@RequestBody CarDto car) throws CarException {
+		logger.info("IN: update car = {}", car);
 		return carService.updateCar(car);
 	}
 	
 	@PatchMapping("/models")
 	public CarDto patchCar (@RequestBody CarDto car) throws CarException {
+		logger.info("IN: patch car = {}", car);
 		return carService.patchCar(car);
 	}
 	
 	@GetMapping("/cars")
-	public Page<CarDto> serchCars (@RequestParam(name = "name", required = false) String name,
+	public Page<CarDto> serchCars (
+			@RequestParam(name = "name", required = false) String name,
 			@RequestParam(name = "yearMax", defaultValue = "0", required = false) int yearMax,
 			@RequestParam(name = "yearMin", defaultValue = "0", required = false) int yearMin,
 			@RequestParam(name = "maker", required = false) String maker,
 			@RequestParam(name = "category", required = false) String category,
 			@RequestParam(name = "page", defaultValue = "0") int page,
 			@RequestParam(name = "size", defaultValue = "10") int size) throws CategoryException, MakerException{
-		searchCriteria.setName(name);
-		searchCriteria.setCategory(category);
-		searchCriteria.setMaker(maker);
-		searchCriteria.setYearMax(yearMax);
-		searchCriteria.setYearMin(yearMin);
+		
+		logger.info("IN: search cars by name = {}, maker = {}, category = {}, yearMax = {}, yearMin = {}", name, maker, category, yearMax, yearMin);
 		List<String> notNullKeyList = new ArrayList<>();
 		if (category != null) {
 			notNullKeyList.add("category");
+			category = category.substring(0, 1).toUpperCase() + category.substring(1);
 		}
 		if (maker != null) {
 			notNullKeyList.add("maker");
+			maker = maker.substring(0, 1).toUpperCase() + maker.substring(1);
 		}
 		if (name != null) {
 			notNullKeyList.add("name");
+			name = name.substring(0, 1).toUpperCase() + name.substring(1);
 		}
 		if (yearMax != 0 & yearMin != 0) {
 			notNullKeyList.add("yearBetween");
@@ -110,6 +120,8 @@ public class CarController {
 		}else if (yearMax == 0 & yearMin != 0) {
 			notNullKeyList.add("yearMin");
 		}
-		return carService.searchCars(notNullKeyList, page, size);
+		SearchCriteria searchCriteria = new SearchCriteria(name, maker, category, yearMax, yearMin);
+		return carService.searchCars(notNullKeyList, searchCriteria, page, size);
 	}
+
 }

@@ -8,15 +8,10 @@ import ua.foxminded.entity.Car;
 @Component
 public class SeachByNameSpecification implements Command<Car> {
 	
-	private SearchCriteria searchCriteria;
 	
 
-	public SeachByNameSpecification(SearchCriteria searchCriteria) {
-		this.searchCriteria = searchCriteria;
-	}
-
 	@Override
-	public Specification<Car> execute() {
+	public Specification<Car> execute(SearchCriteria searchCriteria) {
 		return (root, query, criteriaBuilder) -> 
 		criteriaBuilder.like(root.get("name"), "%" + searchCriteria.getName() + "%");
 	}

@@ -1,46 +1,30 @@
 package ua.foxminded.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatcher;
-import org.springframework.data.domain.ExampleMatcher.MatcherConfigurer;
-import org.springframework.data.domain.ExampleMatcher.StringMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ua.foxminded.dto.CarDto;
-import ua.foxminded.dto.CategoryDto;
 import ua.foxminded.entity.Car;
-import ua.foxminded.entity.Category;
 import ua.foxminded.entity.Maker;
 import ua.foxminded.exception.CarException;
-import ua.foxminded.exception.CategoryException;
 import ua.foxminded.exception.MakerException;
 import ua.foxminded.mapper.CarMapper;
 import ua.foxminded.mapper.CycleAvoidingMappingContext;
 import ua.foxminded.repository.CarJPARepository;
-import ua.foxminded.repository.CategoryJPARepository;
 import ua.foxminded.repository.MakerJPARepository;
 import ua.foxminded.specificationJPA.SearchCriteria;
 import ua.foxminded.specificationJPA.SearchInterface;
-import ua.foxminded.specificationJPA.SearchSpecification;
 
 @Service
 @Transactional(readOnly = true)
@@ -49,18 +33,17 @@ public class CarService {
 	private final CarMapper mapper;
 	private final CarJPARepository carJPARepository;
 	private final MakerJPARepository makerJPARepository;
-	private final CategoryJPARepository categoryJPARepository;
 	private final SearchInterface searchInterface;
 
 	private final Logger logger = LogManager.getLogger();
 
 	private CycleAvoidingMappingContext context = new CycleAvoidingMappingContext();
 
-	public CarService(CarMapper mapper, CarJPARepository carJPARepository, MakerJPARepository makerJPARepository, CategoryJPARepository categoryJPARepository, SearchInterface searchInterface) {
+	public CarService(CarMapper mapper, CarJPARepository carJPARepository,
+			MakerJPARepository makerJPARepository, SearchInterface searchInterface) {
 		this.mapper = mapper;
 		this.carJPARepository = carJPARepository;
 		this.makerJPARepository = makerJPARepository;
-		this.categoryJPARepository = categoryJPARepository;
 		this.searchInterface = searchInterface;
 	}
 
@@ -206,16 +189,18 @@ public class CarService {
 		return modelCarsList;
 	}
 	
-	public Page<CarDto> searchCars(List<String> keyList,
-			int page, int size) throws CategoryException, MakerException {
+	public Page<CarDto> searchCars(List<String> keyList, SearchCriteria searchCriteria, int page, int size) {
+		logger.info("search cars IN by criteria = {}", searchCriteria);
 		Specification<Car> rootSpecification = null;
 		for (String string : keyList) {
 			rootSpecification = Optional.ofNullable(rootSpecification)
-					.map(specification->specification.and(searchInterface.getSpecification(string)))
-					.orElseGet(()->Specification.where(searchInterface.getSpecification(string)));
+					.map(specification->specification.and(searchInterface.getSpecification(string, searchCriteria)))
+					.orElseGet(()->Specification.where(searchInterface.getSpecification(string, searchCriteria)));
 		}
-		Page<CarDto> cars = carJPARepository.findAll(rootSpecification, PageRequest.of(page, size))
+		Page<CarDto> cars = carJPARepository.findAll(rootSpecification, PageRequest.of(page, size, Sort.by("name").and(Sort.by("maker").and(Sort.by("year")))))
 				.map(el-> mapper.carToCarDto(el, context));
+		logger.info("search cars OUT: {}", cars.toList());
+		logger.info("-------------------------------------------");
 		return cars;
 	}
 	
