@@ -47,12 +47,11 @@ public class CarController {
 	
 	@GetMapping("/models/{model}")
 	public Page<CarDto> getCarsListByModel(@PathVariable("model") String modelName,
-			@RequestParam(name = "page", defaultValue = "1") int page,
+			@RequestParam(name = "page", defaultValue = "0") int page,
 			@RequestParam(name = "size", defaultValue = "10") int size) {
 		logger.info("IN: Get cars by Model name = {}", modelName);
 		String modelNameWithUpCase = modelName.substring(0, 1).toUpperCase() + modelName.substring(1);
 		Page<CarDto> cars = carService.getCarsByModel(modelNameWithUpCase, page, size);
-		System.out.println(cars);
 		return cars;
 	}
 	

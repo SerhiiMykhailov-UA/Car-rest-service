@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
@@ -38,6 +39,7 @@ public class CarDto {
 	
 	@NotEmpty(message = "Name shouldn't be empty")
 	@Size(min = 1900, max = 2500, message = "Year should be between 1900 and 2500")
+	@NonNull
 	private int year;
 
 	@NotEmpty(message = "Category shouldn't be empty")
@@ -49,6 +51,6 @@ public class CarDto {
 
 	@NotEmpty(message = "Maker shouldn't be empty")
 	@NonNull
-	@JsonManagedReference
+	@JsonBackReference
 	private MakerDto maker;
 }
