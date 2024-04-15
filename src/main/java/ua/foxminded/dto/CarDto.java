@@ -6,9 +6,6 @@ import java.util.UUID;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -46,11 +43,9 @@ public class CarDto {
 	@NonNull
 	@ToString.Exclude
 	@EqualsAndHashCode.Exclude
-	@JsonManagedReference
 	private List<CategoryDto> category;
 
 	@NotEmpty(message = "Maker shouldn't be empty")
 	@NonNull
-	@JsonBackReference
 	private MakerDto maker;
 }

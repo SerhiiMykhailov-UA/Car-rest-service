@@ -6,6 +6,8 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -71,9 +73,11 @@ public class CarController {
 	}
 	
 	@DeleteMapping("/models")
-	public boolean deleteCar (@RequestBody CarDto car) throws CarException {
+	public ResponseEntity<HttpStatus> deleteCar (@RequestBody CarDto car) throws CarException {
 		logger.info("IN: delet car = {}", car);
-		return carService.delete(car);
+		boolean deleteCar = carService.delete(car);
+		logger.info("OUT: delet boolean result = {}", deleteCar);
+		return ResponseEntity.ok(HttpStatus.OK);
 	}
 	
 	@PutMapping("/models")
