@@ -1,6 +1,5 @@
 package ua.foxminded.controller;
 
-import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.mockito.Mockito.when;
