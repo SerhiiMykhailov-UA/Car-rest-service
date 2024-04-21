@@ -44,7 +44,8 @@ public class CarController {
 	@GetMapping("/{maker}/models")
 	public List<String> getAllCarsByMaker(@PathVariable("maker") String makerName) throws MakerException {
 		logger.info("IN: Get all cars by maker name = {}", makerName);
-		return carService.getAllModelCarByMaker(makerName);
+		String makerNameWithUpperCase = makerName.substring(0, 1).toUpperCase() + makerName.substring(1);
+		return carService.getAllModelCarByMaker(makerNameWithUpperCase);
 	}
 	
 	@GetMapping("/models/{model}")
