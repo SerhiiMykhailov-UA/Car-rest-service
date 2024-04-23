@@ -25,7 +25,7 @@ public class LogoutController implements LogoutSuccessHandler {
 		if (request.getSession() != null) {
 			request.getSession().invalidate();
 		}
-		String returnTo = "http://localhost:8080/";
+		String returnTo = authConfig.getContextPath(request) + "/";
 		String logoutUrl = "http://localhost:8080/car-rest-service/v1/logout?client_id="
 		+ authConfig.getClientId() + "&returnTo=" + returnTo;
 		response.sendRedirect(logoutUrl);

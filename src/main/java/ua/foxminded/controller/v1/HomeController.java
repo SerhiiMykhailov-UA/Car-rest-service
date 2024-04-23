@@ -11,7 +11,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 @RestController
 public class HomeController {
 
-    @GetMapping(value = "/")
+    @GetMapping(value = "/v1")
     public String home(final Authentication authentication) {
         TestingAuthenticationToken token = (TestingAuthenticationToken) authentication;
         DecodedJWT jwt = JWT.decode(token.getCredentials().toString());
