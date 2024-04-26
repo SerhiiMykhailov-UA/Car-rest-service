@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -29,11 +30,11 @@ public class AuthConfig {
 	@Value(value = "${com.auth0.clientSecret}")
 	private String clientSecret;
 	
-    @Value(value = "${com.auth0.managementApi.clientId}")
-    private String managementApiClientId;
-
-    @Value(value = "${com.auth0.managementApi.clientSecret}")
-    private String managementApiClientSecret;
+//    @Value(value = "${com.auth0.managementApi.clientId}")
+//    private String managementApiClientId;
+//
+//    @Value(value = "${com.auth0.managementApi.clientSecret}")
+//    private String managementApiClientSecret;
 
     @Value(value = "${com.auth0.managementApi.grantType}")
     private String grantType;
@@ -48,9 +49,12 @@ public class AuthConfig {
         http.csrf(csrf -> csrf
                 .disable())
                 .authorizeRequests(requests -> requests
-                        .antMatchers("/car-rest-service", "/", "/v1/login")
-                        .permitAll()
-                        .anyRequest().authenticated())
+                        .antMatchers("/car-rest-service/**", "/", "/v1/login").permitAll()
+                        .antMatchers(HttpMethod.GET).permitAll()
+                        .antMatchers(HttpMethod.POST).authenticated()
+                        .antMatchers(HttpMethod.DELETE).authenticated()
+                        .antMatchers(HttpMethod.PATCH).authenticated()
+                        .antMatchers(HttpMethod.PUT).authenticated())
                 .formLogin(login -> login
                         .loginPage("/v1/login"))
  //                       .defaultSuccessUrl("/v1/makers", true))
@@ -61,7 +65,7 @@ public class AuthConfig {
     @Bean
     AuthenticationController authenticationController() {
     	JwkProvider jwkProvider = new JwkProviderBuilder(domain).build();
-    	return AuthenticationController.newBuilder(domain, managementApiClientId, managementApiClientSecret)
+    	return AuthenticationController.newBuilder(domain, clientId, clientSecret)
     			.withJwkProvider(jwkProvider).build();
     }
     
@@ -77,13 +81,13 @@ public class AuthConfig {
 		return clientSecret;
 	}
 	
-    public String getManagementApiClientId() {
-        return managementApiClientId;
-    }
-
-    public String getManagementApiClientSecret() {
-        return managementApiClientSecret;
-    }
+//    public String getManagementApiClientId() {
+//        return managementApiClientId;
+//    }
+//
+//    public String getManagementApiClientSecret() {
+//        return managementApiClientSecret;
+//    }
 	
     public String getUserInfoUrl() {
         return "https://" + getDomain() + "/userinfo";

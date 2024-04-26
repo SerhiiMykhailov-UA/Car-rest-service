@@ -58,26 +58,8 @@ public class AuthController {
 		authenticationToken.setAuthenticated(true);
 		
 		SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-		response.sendRedirect(authConfig.getContextPath(request) + "/car-rest-service/v1/users");
+		response.sendRedirect(authConfig.getContextPath(request) + "/car-rest-service/v1/makers");
 	}
 	
-	public String getManagementApiToken() {
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.setContentType(MediaType.APPLICATION_JSON);
 
-	    JSONObject requestBody = new JSONObject();
-	    requestBody.put("client_id", "auth0ManagementAppClientId");
-	    requestBody.put("client_secret", "auth0ManagementAppClientSecret");
-	    requestBody.put("audience", "https://dev-yrxawf1etvqc6uz7.us.auth0.com/api/v2/");
-	    requestBody.put("grant_type", "client_credentials"); 
-
-	    HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);
-
-	    RestTemplate restTemplate = new RestTemplate();
-	    @SuppressWarnings("unchecked")
-		HashMap<String, String> result = restTemplate
-	      .postForObject("https://dev-yrxawf1etvqc6uz7.us.auth0.com/oauth/token", request, HashMap.class);
-
-	    return result.get("access_token");
-	}
 }

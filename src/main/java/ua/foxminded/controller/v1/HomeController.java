@@ -8,14 +8,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-@RestController
+//@RestController
 public class HomeController {
 
-    @GetMapping(value = "/v1")
-    public String home(final Authentication authentication) {
-        TestingAuthenticationToken token = (TestingAuthenticationToken) authentication;
-        DecodedJWT jwt = JWT.decode(token.getCredentials().toString());
-        String email = jwt.getClaims().get("email").asString();
-        return "Welcome, " + email + "!";
-    }
+//    @GetMapping(value = "/v1")
+//    public String home(final Authentication authentication) {
+//        TestingAuthenticationToken token = (TestingAuthenticationToken) authentication;
+//        DecodedJWT jwt = JWT.decode(token.getCredentials().toString());
+//        String email = jwt.getClaims().get("email").asString();
+//        return "Welcome, " + email + "!";
+//    }
 }
