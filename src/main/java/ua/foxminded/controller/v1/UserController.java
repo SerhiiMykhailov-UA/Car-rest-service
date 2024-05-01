@@ -59,7 +59,7 @@ public class UserController {
 	    JSONObject requestBody = new JSONObject();
 	    requestBody.put("client_id", "clientId");
 	    requestBody.put("client_secret", "clientSecret");
-	    requestBody.put("audience", "https://dev-yrxawf1etvqc6uz7.us.auth0.com/api/v2/");
+	    requestBody.put("audience", "http://car-rest-service");
 	    requestBody.put("grant_type", "client_credentials"); 
 
 	    HttpEntity<String> request = new HttpEntity<String>(requestBody.toString(), headers);

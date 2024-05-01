@@ -1,21 +1,19 @@
 package ua.foxminded.config;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
+import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-
-import com.auth0.AuthenticationController;
-import com.auth0.jwk.JwkProvider;
-import com.auth0.jwk.JwkProviderBuilder;
-
-import ua.foxminded.controller.v1.LogoutController;
 
 @Configuration
 @EnableWebSecurity
@@ -24,28 +22,24 @@ public class AuthConfig {
 	@Value(value = "${com.auth0.domain}")
 	private String domain;
 	
-	@Value(value = "${com.auth0.clientId}")
+	@Value(value = "${spring.security.oauth2.resourceserver.opaquetoken.client-id}")
 	private String clientId;
 	
-	@Value(value = "${com.auth0.clientSecret}")
+	@Value(value = "${spring.security.oauth2.resourceserver.opaquetoken.client-secret}")
 	private String clientSecret;
 	
-//    @Value(value = "${com.auth0.managementApi.clientId}")
-//    private String managementApiClientId;
-//
-//    @Value(value = "${com.auth0.managementApi.clientSecret}")
-//    private String managementApiClientSecret;
-
+	@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+	private String issuer;
+	
+	@Value(value = "${auth0.audience}")
+    private String audience;
+	
     @Value(value = "${com.auth0.managementApi.grantType}")
     private String grantType;
 	
-	@Bean
-	protected LogoutSuccessHandler logoutSuccessHandler() {
-		return new LogoutController();
-	}
 	
-	@Bean
-	protected SecurityFilterChain filterChain (HttpSecurity http) throws Exception {
+    @Bean
+    protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf
                 .disable())
                 .authorizeRequests(requests -> requests
@@ -55,58 +49,21 @@ public class AuthConfig {
                         .antMatchers(HttpMethod.DELETE).authenticated()
                         .antMatchers(HttpMethod.PATCH).authenticated()
                         .antMatchers(HttpMethod.PUT).authenticated())
-                .formLogin(login -> login
-                        .loginPage("/v1/login"))
- //                       .defaultSuccessUrl("/v1/makers", true))
-                .logout(logout -> logout.logoutSuccessHandler(logoutSuccessHandler()).permitAll());
-		return http.build();
-	}
-
-    @Bean
-    AuthenticationController authenticationController() {
-    	JwkProvider jwkProvider = new JwkProviderBuilder(domain).build();
-    	return AuthenticationController.newBuilder(domain, clientId, clientSecret)
-    			.withJwkProvider(jwkProvider).build();
-    }
-    
-    String getDomain() {
-		return domain;
-	}
-
-	public String getClientId() {
-		return clientId;
-	}
-
-	public String getClientSecret() {
-		return clientSecret;
-	}
-	
-//    public String getManagementApiClientId() {
-//        return managementApiClientId;
-//    }
-//
-//    public String getManagementApiClientSecret() {
-//        return managementApiClientSecret;
-//    }
-	
-    public String getUserInfoUrl() {
-        return "https://" + getDomain() + "/userinfo";
+                .oauth2ResourceServer(server -> server
+                        .jwt()
+                        .decoder(jwtDecoder()));
+        return http.build();
     }
 
-    public String getUsersUrl() {
-        return "https://" + getDomain() + "/api/v2/users";
-    }
 
-    public String getUsersByEmailUrl() {
-        return "https://" + getDomain() + "/api/v2/users-by-email?email=";
-    }
 
-    public String getLogoutUrl() {
-        return "https://" + getDomain() +"/v2/logout";
-    }
+	 JwtDecoder jwtDecoder() {
+		    OAuth2TokenValidator<Jwt> withAudience = new AudienceValidator(audience);
+		    OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(issuer);
+		    OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(withAudience, withIssuer);
 
-	public String getContextPath(HttpServletRequest request) {
-		String path = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
-		return path;
-	}
+		    NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder) JwtDecoders.fromOidcIssuerLocation(issuer);
+		    jwtDecoder.setJwtValidator(validator);
+		    return jwtDecoder;
+		  }
 }

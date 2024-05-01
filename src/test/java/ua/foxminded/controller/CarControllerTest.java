@@ -27,8 +27,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.c4_soft.springaddons.security.oauth2.test.annotations.WithMockAuthentication;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -74,6 +76,7 @@ class CarControllerTest {
 	}
 
 	@Test
+	@WithMockUser(value="admin")
 	void givenMakerName_whenGetModelsByMaker_thenReturnJsonArray() throws Exception {
 		List<String> cars = Arrays.asList("TestModel-1", "TestModel-2", "TestModel-3");
 		String makerName = "Serg";
@@ -83,13 +86,14 @@ class CarControllerTest {
 		mvc.perform(get("/v1/makers/{maker}/models", makerName)
 				.param("maker", makerName)
 				.contentType(MediaType.APPLICATION_JSON))
-		.andDo(print())
+	//	.andDo(print())
 		.andExpect(status().isOk())
 		.andExpect(jsonPath("$[0]", is("TestModel-1")))
 		.andExpect(jsonPath("$", hasItem("TestModel-3")));
 	}
 
 	@Test
+	@WithMockUser(value="admin")
 	void givenMogel_whenGetCarsByModel_thenReturnPageJsonArray() throws Exception {
 		String modelName = "TestCar-1";
 		
@@ -98,7 +102,7 @@ class CarControllerTest {
 		mvc.perform(get("/v1/makers/models/{model}", modelName)
 				.param("model", modelName).param("page", "0").param("size", "10")
 				.contentType(MediaType.APPLICATION_JSON))
-		.andDo(print())
+	//	.andDo(print())
 		.andExpect(status().isOk())
 		.andExpect(jsonPath("$.content[0].name", is("TestCar-1")))
 		.andExpect(jsonPath("$.content[2].year", is(1995)))
@@ -106,18 +110,20 @@ class CarControllerTest {
 	}
 
 	@Test
+	@WithMockUser(value="admin")
 	void givenModeAndYear_whenGetCarByModelAndYear_thenReturnJsonCar() throws Exception {
 		String modelName = "TestCar-1";
 		when(carService.getByNameAndYear(Mockito.anyString(), Mockito.anyInt())).thenReturn(car);
 		
 		mvc.perform(get("/v1/makers/models/{model}/{year}", modelName, 2002)
 				.contentType(MediaType.APPLICATION_JSON))
-		.andDo(print())
+	//	.andDo(print())
 		.andExpect(status().isOk())
 		.andExpect(jsonPath("$.objectId", is(car.getObjectId())));
 	}
 
 	@Test
+	@WithMockAuthentication(authorities = "ROLE_AUTHORIZED_PERSONNEL")
 	void givenCar_whenAddNewCar_thenReturnJsonCar() throws Exception {
 		when(carService.add(Mockito.any())).thenReturn(carResult);
 		
@@ -127,13 +133,14 @@ class CarControllerTest {
 				.accept(MediaType.APPLICATION_JSON)
 				.content(jsonObj)
 				.contentType(MediaType.APPLICATION_JSON))
-		.andDo(print())
+	//	.andDo(print())
 		.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().isOk())
 		.andExpect(jsonPath("$.id", notNullValue()));
 	}
 
 	@Test
+	@WithMockUser(value="admin")
 	void givenCar_whenDeleteCar_thenReturnBoolean() throws Exception {
 		when(carService.delete(Mockito.any())).thenReturn(true);
 		
@@ -141,11 +148,12 @@ class CarControllerTest {
 				.accept(MediaType.APPLICATION_JSON)
 				.content(jsonObj)
 				.contentType(MediaType.APPLICATION_JSON))
-		.andDo(print())
+	//	.andDo(print())
 		.andExpect(status().isOk());
 	}
 
 	@Test
+	@WithMockUser(value="admin", authorities = "WRITE_PRIVILEGE")
 	void givenCar_whenUpdateCar_thenReturnJsonCar() throws Exception {
 		when(carService.updateCar(Mockito.any())).thenReturn(carResult);
 		
@@ -153,7 +161,7 @@ class CarControllerTest {
 				.accept(MediaType.APPLICATION_JSON)
 				.content(jsonObj)
 				.contentType(MediaType.APPLICATION_JSON))
-		.andDo(print())
+	//	.andDo(print())
 		.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().isOk())
 		.andExpect(jsonPath("$.id", notNullValue()))
@@ -161,6 +169,7 @@ class CarControllerTest {
 	}
 
 	@Test
+	@WithMockUser(value="admin")
 	void givenCar_whenPatchCar_thenReturnJsonCar() throws Exception {
 		when(carService.patchCar(Mockito.any())).thenReturn(carResult);
 		
@@ -176,6 +185,7 @@ class CarControllerTest {
 	}
 
 	@Test
+	@WithMockUser(value="admin")
 	void testSerchCars() throws Exception {
 		when(carService.searchCars(Mockito.anyList(), Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn(carsPage);
 		
@@ -183,7 +193,7 @@ class CarControllerTest {
 				.accept(MediaType.APPLICATION_JSON)
 				.param("name", "TestCar-1")
 				.contentType(MediaType.APPLICATION_JSON))
-		.andDo(print())
+	//	.andDo(print())
 		.andExpect(status().isOk())
 		.andExpect(jsonPath("$.content[0].year", is(2002)));
 	}
