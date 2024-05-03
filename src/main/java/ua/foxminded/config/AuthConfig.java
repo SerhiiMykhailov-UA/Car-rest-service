@@ -19,23 +19,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class AuthConfig {
 	
-	@Value(value = "${com.auth0.domain}")
-	private String domain;
-	
-	@Value(value = "${spring.security.oauth2.resourceserver.opaquetoken.client-id}")
-	private String clientId;
-	
-	@Value(value = "${spring.security.oauth2.resourceserver.opaquetoken.client-secret}")
-	private String clientSecret;
 	
 	@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
 	private String issuer;
 	
 	@Value(value = "${auth0.audience}")
     private String audience;
-	
-    @Value(value = "${com.auth0.managementApi.grantType}")
-    private String grantType;
 	
 	
     @Bean
