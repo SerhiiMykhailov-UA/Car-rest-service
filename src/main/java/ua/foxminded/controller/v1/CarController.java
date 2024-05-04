@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import ua.foxminded.dto.CarDto;
 import ua.foxminded.exception.CarException;
 import ua.foxminded.exception.CategoryException;
@@ -41,6 +47,14 @@ public class CarController {
 		this.carService = carService;
 	}
 	
+	@Operation(description = "Get all car's model by Maker name")
+	@ApiResponses(
+			value = {
+			@ApiResponse(responseCode = "200", content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+			schema = @Schema(implementation = List.class))}),
+			  @ApiResponse(responseCode = "400", description = "Cann't find Maker", 
+			    content = @Content(mediaType = "CarExeption/json", schema = @Schema(implementation = MakerException.class)))
+			})
 	@GetMapping("/{maker}/models")
 	public List<String> getAllCarsByMaker(@PathVariable("maker") String makerName) throws MakerException {
 		logger.info("IN: Get all cars by maker name = {}", makerName);
@@ -49,6 +63,15 @@ public class CarController {
 	}
 	
 	@GetMapping("/models/{model}")
+	@Operation(summary = "Get all cars by model")
+	@ApiResponses(value = { 
+			  @ApiResponse(responseCode = "200", description = "Get cars by model", 
+					    content = { @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, 
+					      schema = @Schema(ref = "#/components/schemas/PageCarDto"))
+					    }),
+			  @ApiResponse(responseCode = "400", description = "Cann't find cars", 
+			    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CarException.class))) 
+			  })
 	public Page<CarDto> getCarsListByModel(@PathVariable("model") String modelName,
 			@RequestParam(name = "page", defaultValue = "0") int page,
 			@RequestParam(name = "size", defaultValue = "10") int size) {
@@ -59,6 +82,14 @@ public class CarController {
 	}
 	
 	@GetMapping("/models/{model}/{year}")
+	@Operation(summary = "Get car by model & year")
+	@ApiResponses(value = { 
+			  @ApiResponse(responseCode = "200", description = "Get car", 
+					    content = { @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, 
+					      schema = @Schema(implementation = CarDto.class)) }),
+			  @ApiResponse(responseCode = "400", description = "Cann't find cars", 
+			    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CarException.class))) 
+			  })
 	public CarDto getCar(@PathVariable("model") String modelName,
 			@PathVariable("year") int year) throws CarException {
 		logger.info("IN: Get car by model name = {} & year = {}", modelName, year);
@@ -68,12 +99,26 @@ public class CarController {
 	}
 	
 	@PostMapping("/models")
+	@Operation(summary = "Create new car")
+	@ApiResponses(value = { 
+			  @ApiResponse(responseCode = "200", description = "Create new car", 
+					    content = { @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, 
+					      schema = @Schema(implementation = CarDto.class)) }),
+			  })
 	public CarDto createNewCar(@RequestBody CarDto car) {
 		logger.info("IN: Post new car = {}", car);
 		return carService.add(car);
 	}
 	
 	@DeleteMapping("/models")
+	@Operation(summary = "Delete car")
+	@ApiResponses(value = { 
+			  @ApiResponse(responseCode = "200", description = "Delete car", 
+					    content = { @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, 
+					      schema = @Schema(implementation = CarDto.class)) }),
+			  @ApiResponse(responseCode = "400", description = "Cann't find car", 
+			    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CarException.class))) 
+			  })
 	public ResponseEntity<HttpStatus> deleteCar (@RequestBody CarDto car) throws CarException {
 		logger.info("IN: delet car = {}", car);
 		boolean deleteCar = carService.delete(car);
@@ -82,18 +127,41 @@ public class CarController {
 	}
 	
 	@PutMapping("/models")
+	@Operation(summary = "Update a car by it's id")
+	@ApiResponses(value = { 
+			  @ApiResponse(responseCode = "200", description = "Update the car", 
+					    content = { @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, 
+					      schema = @Schema(implementation = CarDto.class)) }),
+			  @ApiResponse(responseCode = "400", description = "Cann't find car", 
+			    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CarException.class))) 
+			  })
 	public CarDto updateCar (@RequestBody CarDto car) throws CarException {
 		logger.info("IN: update car = {}", car);
 		return carService.updateCar(car);
 	}
 	
 	@PatchMapping("/models")
+	@Operation(summary = "Update car's category")
+	@ApiResponses(value = { 
+			  @ApiResponse(responseCode = "200", description = "Update car's category", 
+					    content = { @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, 
+					      schema = @Schema(implementation = CarDto.class)) }),
+			  @ApiResponse(responseCode = "400", description = "Cann't find car", 
+			    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = CarException.class))) 
+			  })
 	public CarDto patchCar (@RequestBody CarDto car) throws CarException {
 		logger.info("IN: patch car = {}", car);
 		return carService.patchCar(car);
 	}
 	
 	@GetMapping("/cars")
+	@Operation(summary = "Serch car's")
+//	@ApiResponses(value = { 
+//			  @ApiResponse(responseCode = "200", description = "Search car's", 
+//					    content = { @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+//					    schema = @Schema(ref = "#/components/schemas/PageCarDto"))
+//					    })
+//			  })
 	public Page<CarDto> serchCars (
 			@RequestParam(name = "name", required = false) String name,
 			@RequestParam(name = "yearMax", defaultValue = "0", required = false) int yearMax,
