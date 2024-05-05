@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import ua.foxminded.dto.CarDto;
 import ua.foxminded.exception.CarException;
 import ua.foxminded.exception.CategoryException;
@@ -47,6 +48,7 @@ public class CarController {
 		this.carService = carService;
 	}
 	
+	@GetMapping("/{maker}/models")
 	@Operation(description = "Get all car's model by Maker name")
 	@ApiResponses(
 			value = {
@@ -55,7 +57,6 @@ public class CarController {
 			  @ApiResponse(responseCode = "400", description = "Cann't find Maker", 
 			    content = @Content(mediaType = "CarExeption/json", schema = @Schema(implementation = MakerException.class)))
 			})
-	@GetMapping("/{maker}/models")
 	public List<String> getAllCarsByMaker(@PathVariable("maker") String makerName) throws MakerException {
 		logger.info("IN: Get all cars by maker name = {}", makerName);
 		String makerNameWithUpperCase = makerName.substring(0, 1).toUpperCase() + makerName.substring(1);
@@ -99,7 +100,7 @@ public class CarController {
 	}
 	
 	@PostMapping("/models")
-	@Operation(summary = "Create new car")
+	@Operation(summary = "Create new car", security = @SecurityRequirement(name = "bearerAuth"))
 	@ApiResponses(value = { 
 			  @ApiResponse(responseCode = "200", description = "Create new car", 
 					    content = { @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, 
@@ -111,7 +112,7 @@ public class CarController {
 	}
 	
 	@DeleteMapping("/models")
-	@Operation(summary = "Delete car")
+	@Operation(summary = "Delete car", security = @SecurityRequirement(name = "bearerAuth"))
 	@ApiResponses(value = { 
 			  @ApiResponse(responseCode = "200", description = "Delete car", 
 					    content = { @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, 
@@ -127,7 +128,7 @@ public class CarController {
 	}
 	
 	@PutMapping("/models")
-	@Operation(summary = "Update a car by it's id")
+	@Operation(summary = "Update a car by it's id", security = @SecurityRequirement(name = "bearerAuth"))
 	@ApiResponses(value = { 
 			  @ApiResponse(responseCode = "200", description = "Update the car", 
 					    content = { @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, 
@@ -141,7 +142,7 @@ public class CarController {
 	}
 	
 	@PatchMapping("/models")
-	@Operation(summary = "Update car's category")
+	@Operation(summary = "Update car's category", security = @SecurityRequirement(name = "bearerAuth"))
 	@ApiResponses(value = { 
 			  @ApiResponse(responseCode = "200", description = "Update car's category", 
 					    content = { @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, 
