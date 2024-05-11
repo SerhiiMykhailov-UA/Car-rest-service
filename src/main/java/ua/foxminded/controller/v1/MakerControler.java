@@ -44,11 +44,6 @@ public class MakerControler {
 	
 	@GetMapping()
 	@Operation(description = "Get all makers")
-//	@ApiResponses(value = { 
-//			  @ApiResponse(responseCode = "200", content = { @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, 
-//					      schema = @Schema(ref = "#/components/schemas/PageMakerDto"))
-//					    }),
-//			  })
 	public Page<MakerDto> getListAllMakers(@RequestParam(name = "page", defaultValue = "1") int page,
 			@RequestParam(name = "size", defaultValue = "10") int size) {
 		return makerService.getAll(page, size);

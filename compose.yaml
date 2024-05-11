@@ -7,12 +7,42 @@
 # You can add other services your application may depend on here, such as a
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
+version: '3.10'
 services:
-  server:
+  postgres:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    restart: always
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=car-rest-service
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+    container_name: postgres
+    networks:
+      - spring-cloud-network
+
+
+  car-rest-service:
+    container_name: car-rest-service
     build:
-      context: .
+      context: docker-car-rest-service
+      dockerfile: Dockerfile
+    image: car-rest-service:latest
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
+    depends_on:
+      - postgres
     ports:
       - 8080:8080
+    networks:
+      - spring-cloud-network
+      
+networks:
+  spring-cloud-network:
+    driver: bridge
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to
@@ -28,7 +58,7 @@ services:
 #     restart: always
 #     user: postgres
 #     secrets:
-#       - db-password
+#       - 1234
 #     volumes:
 #       - db-data:/var/lib/postgresql/data
 #     environment:
